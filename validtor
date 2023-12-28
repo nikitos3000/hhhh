@@ -1,0 +1,64 @@
+export default class Validator {
+  string() {
+    return {
+      isValid(value) {
+        return typeof value === 'string';
+      },
+      containsNumber() {
+        return {
+          isValid(value) {
+            const nums = 1;
+            return value.includes(nums);
+          },
+        };
+      },
+    };
+  }
+
+  array() {
+    return {
+      isValid(value) {
+        return Array.isArray(value);
+      },
+      containsNumber() {
+        return {
+          isValid(value) {
+            if (!Array.isArray(value)) {
+              return false;
+            }
+            const nums = [1, 2];
+            return value.every((element) => element.includes(nums));
+          },
+        };
+      },
+      custom(callback) {
+        return {
+          isValid(value) {
+            if (!Array.isArray(value)) {
+              return false;
+            }
+            return value.every(callback);
+          },
+        };
+      },
+    };
+  }
+
+  object() {
+    return {
+      shape(schema) {
+        return {
+          isValid(value) {
+            if (typeof value !== 'object' || Array.isArray(value) || value === null) {
+              return false;
+            }
+            return Object.entries(schema).every(([key, validator]) => {
+              const propertyValue = value[key];
+              return validator && validator.isValid(propertyValue);
+            });
+          },
+        };
+      },
+    };
+  }
+}
